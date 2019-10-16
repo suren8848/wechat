@@ -3,131 +3,52 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use DB;
-
+use Illuminate\Support\Facades\Cache;
+use App\Tools\Tools;
 class StudentController extends Controller
 {
-    public  function index(Request $request)
-    {
 
-    	// DB::connection('mysql_shop')->enableQueryLog();
-    	// $info=DB::connection('mysql_shop')->table('shop_goods')->where('goods_name','like','%22%')->get()->toArray();
-    	// $sql=DB::connection('mysql_shop')->getQueryLog();
-    	// var_dump($sql);
-    	// $info=DB::connection('mysql_shop')->table('shop_goods')->get()->toArray();
-    	// dd();
-    	$redis=new \Redis;
-    	$redis->connect('127.0.0.1','6379');
-    	$redis->incr('num');
-    	$num=$redis->get('num');
-    	echo "访问次数".$num;
-    	$res=$request->all();
-    	//var_dump($res);$search='';
-    	
-    	if(!empty($res['search'])){
-    		$search=$res['search'];
-    		$info=DB::table('student')
-    		->where('name','like','%'.$res['search'].'%')
-    		->paginate(2);
-    	}else{
-    		$info=DB::table('student')->paginate(2);
-    	}
-    	
-    	
-    	return view('studentList',['student'=>$info,'search'=>$search]);
-	}
-	//登录视图
-	public  function login(Request $request)
+
+	
+
+	
+
+	public function index(Tools $tools)
 	{
-		return view('login');
-	}
-	//登录
-	public  function do_login(Request $request)
-	{
-		$res=$request->all();
-		$request->session()->put('username','name123');
-		return redirect('student/index');
-	}
-	public  function register(Request $request)
-	{
-		return view('register');
-	}
-	 public  function add()
-	 {
-	 	return view('studentAdd',[]);
-	 }
-	 public  function do_add(Request $request)
-	 {
-	 	
-		 $validatedData = $request->validate
-		 ([
-	        'name' => 'required',
-	        'age' => 'required',
-	        'sex' => 'required',
-	        'class_id' =>'required',
-	       
-	        
-	    ],
-		    ['name.required'=>'字段必填',
-		    'age.required'=>'年龄必填',
-		    'sex.required'=>'性别必填',
-		    'class_id.required'=>'班级必填',
-		   
-	    ]);
-		$res=$request->all();
-	 	//dd($res);
-	 	$result=DB::table('student')->insert([
-	 			'name'=>$res['name'],
-	 			'age'=>$res['age'],
-	 			'sex'=>$res['sex'],
-	 			'class_id'=>$res['class_id'],
-	 			'addtime'=>time(),
-	 		]);
-	 	//dd($result);
-	 	if($result){
-	 		return redirect('student/index');
-	 	}else{
-	 		echo "fail";
-	 	}
-	 }
-	  public  function delete(Request $request)
-	  {
-	  	$res=$request->all();
-	  	$result=DB::table('student')->where(['id'=>$res['id']])->delete();
-	  	//dd($result);
-	  	
-	  	if($result){
-	   	return redirect('student/index');
-	   }else{
-	   	echo "fail";
-	   }
-	  
-	  }
+		$res = file_get_contents('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='.env('WECHAR_APPID').'&secret='.env('WECHAR_SECRET'));
+		
+		$result=json_decode($res);
 
-	  public  function update(Request $request)
-	  {
-	  	$res=$request->all();
-	  	$info=DB::table('student')->where(['id'=>$res['id']])->first();
-	  	return view('studentUpdate',['student_info'=>$info]);
-	  }
-	  public  function do_update(Request $request)
-	  {
-	   	$res=$request->all();
-	   	//dd($res);
-	   	$result=DB::table('student')->where(['id'=>$res['id']])->update([
-	   			'name'=>$res['name'],
-	   			'age'=>$res['age'],
-	   			'sex'=>$res['sex'],
-	   			'class_id'=>$res['class_id'],
-	   			'addtime'=>$res['addtime'],
-	   		]);
-	   //dd($result);
-		   if($result){
-		   	return redirect('student/index');
-		   }else{
-		   	echo "fail";
-		   }
-	  }
+		//获取token
+		$token=$tools->get_access_token();
+	    //dd($token);
+		//获取openid 
+		$openid=file_get_contents('https://api.weixin.qq.com/cgi-bin/user/get?access_token='.$token.'&next_openid=');
+		//dd($openid);
+		$re=json_decode($openid,1);
+		
+		
+		$openid_list=[];
+	
 
+        foreach ($re['data']['openid'] as $v)
 
+        {
+            $user_info=file_get_contents('https://api.weixin.qq.com/cgi-bin/user/info?access_token='.$tools->get_access_token().'&openid='.$v.'&lang=zh_CN');
+
+            $res=json_decode($user_info,1);
+
+            dd($res);
+
+			$openid_list[]=$res;
+	
+        }
+		//dd($openid_list);
+		return view('wechar.user_list',['list'=>$openid_list]);
+		
+	}
+
+	
+	
+	
 }

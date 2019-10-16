@@ -1,35 +1,20 @@
-@extends('layout.common')
-@section('title','登录')
-@section('body')
- <!-- login -->
-    <div class="pages section">
-        <div class="container">
-            <div class="pages-head">
-                <h3>LOGIN</h3>
-            </div>
-            <div class="login">
-                <div class="row">
-                    <form class="col s12" method="post" action="{{url('index/login_do')}}">
-                        @csrf
-                        <div class="input-field">
-                            <input type="text" class="validate" placeholder="USERNAME" required>
-                        </div>
-                        <div class="input-field">
-                            <input type="password" class="validate" placeholder="PASSWORD" required>
-                        </div>
-                        <a href=""><h6>Forgot Password ?</h6></a>
-                        <a href="" class="btn button-default">LOGIN</a>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- end login -->
-@endsection
-@section('script')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+            <button id="myform">发送code!</button>
+</body>
+</html>
+    <script src="/jquery.js"></script>
 <script>
-	$(function(){
-
-	});
+        $(function(){
+                 $(document).on('click','#myform',function(){
+                         location.href="{{url(env('APP_URL').'/login/wechar_login')}}";
+                 })
+        })
 </script>
-@endsection
