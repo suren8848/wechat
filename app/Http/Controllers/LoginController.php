@@ -13,7 +13,7 @@ class LoginController extends Controller
         // dd($redirect);
         $url='https://open.weixin.qq.com/connect/oauth2/authorize?appid='.env('WECHAT_APPID').'&redirect_uri='.$redirect_uri.'&response_type=code&scope=snsapi_base&state=123#wechat_redirect';
             // dd($url); 
-        // header('localhost:'.$url);
+        header('localhost:'.$url);
         
     }
 

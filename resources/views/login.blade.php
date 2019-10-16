@@ -14,7 +14,7 @@
 <script>
         $(function(){
                  $(document).on('click','#myform',function(){
-                         location.href="{{url(env('APP_URL').'/login/wechar_login')}}";
+                         location.href="{{url(env('APP_URL').'/wechar_login')}}";
                  })
         })
 </script>
